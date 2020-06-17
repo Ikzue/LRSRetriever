@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<h1>LRS statement retriever </h1>
+<h2>Number of statements: <data id="number-statements">{{ nb_statements }}</data></h2>
+<form method="post">
+    <label>Hash étudiant:</label>
+    <input type="text" id="student-hash" name="student-hash" value="{{  request.form['student-hash'] }}">
+    <label>Nom verbe:</label>
+    <input type="text" id="verb-name" name="verb-name" value="{{ request.form['verb-name'] }}">
+    <label>Nom activité:</label>
+    <input type="text" id="activity-name" name="activity-name" value="{{ request.form['activity-name'] }}">
+    <input type="submit" value="Submit">
+</form> 
+
+<ol id="result">
+    {% for message in statements %}
+    <li>{{ message['statement']['actor']['name']}} {{ message['statement']['verb']['id']}} {{ message['statement']['object']['id']}}</li>
+    {% endfor %}
+</ol>
+{% endblock %}
