@@ -9,12 +9,19 @@
     <input type="text" id="verb-name" name="verb-name" value="{{ request.form['verb-name'] }}">
     <label>Nom activité:</label>
     <input type="text" id="activity-name" name="activity-name" value="{{ request.form['activity-name'] }}">
+    <label>Date</label>
+    <select name="date" id="date">
+      <option value="today">Aujourd'hui</option>
+      <option value="week">Cette semaine</option>
+      <option value="month">Ce mois</option>
+      <option value="all">Tout</option>
+    </select> 
     <input type="submit" value="Submit">
 </form> 
 
 <ol id="result">
     {% for message in statements %}
-    <li>{{ message['statement']['actor']['name']}} {{ message['statement']['verb']['id']}} {{ message['statement']['object']['id']}}</li>
+    <li>{{ message['statement']['actor']['name']}} {{ message['statement']['verb']['id']}} {{ message['statement']['object']['id']}} {{ message['timestamp']}}</li>
     {% endfor %}
 </ol>
 {% endblock %}
