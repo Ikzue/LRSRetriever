@@ -5,10 +5,6 @@
 <form method="post">
     <label>Hash étudiant:</label>
     <input type="text" id="student-hash" name="student-hash" value="{{  request.form['student-hash'] }}">
-    <label>Nom verbe:</label>
-    <input type="text" id="verb-name" name="verb-name" value="{{ request.form['verb-name'] }}">
-    <label>Nom activité:</label>
-    <input type="text" id="activity-name" name="activity-name" value="{{ request.form['activity-name'] }}">
     <label>Date</label>
     <select name="date" id="date">
       <option value="today">Aujourd'hui</option>
@@ -21,7 +17,7 @@
 
 <ol id="result">
     {% for message in statements %}
-    <li>{{ message['statement']['actor']['name']}} {{ message['statement']['verb']['id']}} {{ message['statement']['object']['id']}} {{ message['timestamp']}}</li>
+    <li>{{ message['statement']['actor']['name']}} {{ message['timestamp']}} {{message['statement']['context']['extensions']['https://www.lip6.fr/mocah/invalidURI/extensions/session-id']}}</li>
     {% endfor %}
 </ol>
 {% endblock %}
