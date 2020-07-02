@@ -2,14 +2,17 @@
 import os
 
 from flask import Flask
-
+from flask_session import Session
 
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__, instance_relative_config=True)
     app.config.from_mapping(
-        SECRET_KEY='dev'
+        SECRET_KEY='6CjhxNkAYEx2AJfK',
+        SESSION_TYPE = 'filesystem'
     )
+    Session(app)
+    
 
     if test_config is None:
         # load the instance config, if it exists, when not testing
@@ -29,7 +32,8 @@ def create_app(test_config=None):
     def hello():
         return 'Hello, World!'
 
-    from . import retrieve_statements
+    from . import retrieve_statements, visualise_statements
     app.register_blueprint(retrieve_statements.bp)
+    app.register_blueprint(visualise_statements.bp)
 
     return app

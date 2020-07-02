@@ -2,22 +2,23 @@
 {% block content %}
 <h1>LRS statement retriever </h1>
 <h2>Number of statements: <data id="number-statements">{{ nb_statements }}</data></h2>
-<form method="post">
-    <label>Hash étudiant:</label>
-    <input type="text" id="student-hash" name="student-hash" value="{{  request.form['student-hash'] }}">
-    <label>Date</label>
-    <select name="date" id="date">
-      <option value="today">Aujourd'hui</option>
-      <option value="week">Cette semaine</option>
-      <option value="month">Ce mois</option>
-      <option value="all">Tout</option>
-    </select> 
-    <input type="submit" value="Submit">
-</form> 
+<form action="" method="post" novalidate>
+  {{ form.hidden_tag() }}
+  <p>
+      {{ form.student_hash.label }}:<br>
+      {{ form.student_hash(size=32) }}
+  </p>
+  <p>
+      {{ form.date.label }}:<br>
+      {{ form.date() }}
+  </p>
+
+  <p>{{ form.submit() }}</p>
+</form>
 
 <ol id="result">
     {% for message in statements %}
-    <li>{{ message['statement']['actor']['name']}} {{ message['timestamp']}} {{message['statement']['context']['extensions']['https://www.lip6.fr/mocah/invalidURI/extensions/session-id']}}</li>
+    <li>{{ message['statement']['actor']['name']}} {{ message['statement']['timestamp']}} {{message['statement']['context']['extensions']['https://www.lip6.fr/mocah/invalidURI/extensions/session-id']}}</li>
     {% endfor %}
 </ol>
 {% endblock %}
