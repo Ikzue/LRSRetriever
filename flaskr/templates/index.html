@@ -2,11 +2,16 @@
 {% block content %}
 <h1>LRS statement retriever </h1>
 <h2>Number of statements: <data id="number-statements">{{ nb_statements }}</data></h2>
+<div>
 <form action="" method="post" novalidate>
   {{ form.hidden_tag() }}
   <p>
-      {{ form.student_hash.label }}:<br>
-      {{ form.student_hash(size=32) }}
+    {{ form.number_list.label }}:<br>
+    {{ form.number_list(size=32) }}
+</p>
+  <p>
+      {{ form.hash_list.label }}:<br>
+      {{ form.hash_list(size=32) }}
   </p>
   <p>
       {{ form.date.label }}:<br>
@@ -15,10 +20,12 @@
 
   <p>{{ form.submit() }}</p>
 </form>
-
+</div>
+<div>
 <ol id="result">
     {% for message in statements %}
     <li>{{ message['statement']['actor']['name']}} {{ message['statement']['timestamp']}} {{message['statement']['context']['extensions']['https://www.lip6.fr/mocah/invalidURI/extensions/session-id']}}</li>
     {% endfor %}
 </ol>
+</div>
 {% endblock %}

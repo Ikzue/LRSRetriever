@@ -3,19 +3,54 @@
 {% if not display_page %}
   <h1>No statements available!</h1>
 {% else %}
+<div>
   <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
+    <div>
     {% for subfield in form.radio %}
-    <tr>
-        <td>{{ subfield }}</td>
-        <td>{{ subfield.label }}</td>
-    </tr>
+      <tr>
+          <td>{{ subfield }}</td>
+          <td>{{ subfield.label }}</td>
+      </tr>
     {% endfor %}
-    {{ form.submit() }}
+    </div>
+    <div>
+    Traces obtenues:
+    {{form.interaction()}}
+    {{ form.interaction.label()}}
+    {{form.execution()}}
+    {{ form.execution.label()}}
+    {{form.errors()}}
+    {{ form.errors.label()}}
+    {{form.states()}}
+    {{ form.states.label()}}
+    {{form.editor()}}
+    {{ form.editor.label()}}
+    </div>
+    <div>
+      Affichage: 
+      {{form.extensions()}}
+      {{form.extensions.label()}}
+    </div>
+    <div>
+      {{ form.number_list.label()}} :
+      {{form.number_list()}}
+      {{ form.hash_list.label()}} :
+      {{form.hash_list()}}
+      {{ form.session_id.label()}} :
+      {{form.session_id()}}
+      {{ form.submit() }}
+
+    </div>
   </form>
-  {% for line in data %}
-    {{line|safe}}
-  {% endfor %}
+</div>
+<div>
+  {% if data %}
+    {% for line in data %}
+      {{line|safe}}
+    {% endfor %}
+  {% endif %}
+</div>
 
 {% endif %}
 {% endblock %}

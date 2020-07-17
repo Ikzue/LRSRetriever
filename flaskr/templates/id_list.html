@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+<table>
+    <thead>
+        <tr><th colspan="2">Liste des URI par ID</th></tr>
+    </thead>
+    <tbody>
+        <tr><th colspan="2">Verbes</th></tr>
+        {% for k,v in id_verbs.items() %}
+        <tr>
+            <td>{{k}}</td>
+            <td>{{v}}</td>
+        </tr>
+        {% endfor %}
+
+        <tr><th colspan="2">Activités</th></tr>
+        {% for k,v in id_activities.items() %}
+        <tr>
+            <td>{{k}}</td>
+            <td>{{v}}</td>
+        </tr>
+        {% endfor %}
+
+        <tr><th colspan="2"> Extensions d'activité</th></tr>
+        {% for k,v in id_activity_extensions.items() %}
+        <tr>
+            <td>{{k}}</td>
+            <td>{{v}}</td>
+        </tr>
+        {% endfor %}
+
+        <tr><th colspan="2"> Extensions de contexte</th></tr>
+        {% for k,v in id_context_extensions.items() %}
+        <tr>
+            <td>{{k}}</td>
+            <td>{{v}}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

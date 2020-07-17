@@ -32,8 +32,10 @@ def create_app(test_config=None):
     def hello():
         return 'Hello, World!'
 
-    from . import retrieve_statements, visualise_statements
+    from . import retrieve_statements, logs_statements, visualize_statements, dev_statements
     app.register_blueprint(retrieve_statements.bp)
-    app.register_blueprint(visualise_statements.bp)
+    app.register_blueprint(logs_statements.bp)
+    app.register_blueprint(visualize_statements.bp)
+    app.register_blueprint(dev_statements.bp)
 
     return app

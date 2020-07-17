@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block content %}
+<table class="fixed">
+    <col width="400px" />
+    <col width="600px" />
+    <thead>
+        <tr>
+            <th>Description</th><th>Code</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for description,code in examples %}
+        <tr>
+            <td>{{description|safe}}</td>
+            <td><textarea  style="width: 100%; height: 100%">{{code}}</textarea></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

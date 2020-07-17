@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if not display_page %}
+  <h1>No statements available!</h1>
+{% else %}
+  <form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    {% for subfield in form.radio %}
+    <tr>
+        <td>{{ subfield }}</td>
+        <td>{{ subfield.label }}</td>
+    </tr>
+    {% endfor %}
+    {{ form.submit() }}
+  </form>
+  {% if data %}
+    {% for line in data %}
+      {{line|safe}}
+    {% endfor %}
+  {% endif %}
+
+{% endif %}
+{% endblock %}

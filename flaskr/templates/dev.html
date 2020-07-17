@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block content %}
+{% if not display_page %}
+  <h1>No statements available!</h1>
+{% else %}
+  <form action="" method="post" novalidate>
+    {{ form.hidden_tag() }}
+    {{ form.dev_text.label()}} : 
+    {{form.dev_text(rows='8',cols='85')}}
+    {{ form.submit() }}
+  </form>
+  <div>
+    Console permettant à l'utilisateur de filtrer individuellement les statements. Chaque ligne est exécuté l'une à la suite de l'autre pour filtrer les statements. <br>
+    field: Un champ du statement xAPI <br>
+    value: Une valeur (string) <br>
+    filter-command: Une commande de filtre
+  </div>
+  <div>
+    <strong>Liste des commandes de filtre:</strong> <br>
+    has [field] : Vérifie si le le field donné est défini dans le statement <br>
+    is [field] [value] : Vérifie si le field donné est égal à value<br>
+    not [filter-command] : Vrai si statement ne vérifie pas la commande
+  </div>
+  <div>
+    <strong>Liste des commandes d'affichage (a utiliser après filtrage):</strong>  <br>
+    show-logs <br>
+    make-piechart [field] <br>
+  </div>
+  <div>
+    <a href="/id_list">Liste des ID</a>
+    <a href="/exemples">Exemples</a>
+  </div>
+  {% if data %}
+    <div>
+    {% for line in data %}
+      {{line|safe}}
+    {% endfor %}
+    </div>
+  {% endif %}
+{% endif %}
+{% endblock %}
