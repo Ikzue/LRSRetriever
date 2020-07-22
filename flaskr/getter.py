@@ -1,4 +1,5 @@
 from flask import session
+import hashlib
 
 def get_actor_name(statement):
     return statement['statement']['actor']['name']
@@ -66,10 +67,74 @@ def statement_info(s, show_extensions):
             pass
     return info
 
-def check_statements_existence():
+def filter_statement_hashes_id(statement, list_hashes, list_ids):
+    filter_statement = False
+    
+    if len(list_hashes) > 0:
+        filter_statement = True
+        actor_name = get_actor_name(statement)
+        for student_hash in list_hashes:
+            if student_hash in actor_name:
+                filter_statement = False
+                break
+        if filter_statement:
+            return True
+
+    if len(list_ids) > 0:
+        filter_statement = True
+        statement_session_id = get_session_id(statement)
+        for session_id in list_ids:
+            if session_id in statement_session_id:
+                filter_statement = False
+                break
+        if filter_statement:
+            return True
+    return filter_statement
+    
+
+def get_filtered_statements(statements, filters = None):
+    if filters is None or (len(filters['hashes']) == 0 and len(filters['session-ids']) == 0):
+        return statements.copy()
+
+    filtered_statements = []
+    list_hashes = filters['hashes']
+    list_ids = filters['session-ids']
+    for statement in session['statements']:
+        if not filter_statement_hashes_id(statement, list_hashes, list_ids):
+            filtered_statements.append(statement)
+    return filtered_statements
+        
+
+def statements_in_session():
     if 'statements' not in session.keys() or len(session['statements']) == 0:
         return False
     return True
+
+def get_hashes(number_list, hash_list):
+    hashes = []
+    # Convert and get all student numbers
+    number_list = number_list.split(';')
+    for number in number_list:
+        if number != '':
+            my_hash = hashlib.sha1(str.encode(number))
+            my_hash = my_hash.hexdigest()[:10]
+            hashes.append(my_hash)
+            
+
+    # Get all hashes
+    hash_list = hash_list.split(';')
+    for my_hash in hash_list:
+        if my_hash != '':
+            hashes.append(my_hash)
+    return hashes
+
+def get_session_ids(session_ids):
+    ids = []
+    session_ids = session_ids.split(';')
+    for s in session_ids:
+        if s != '':
+            ids.append(s)
+    return ids
 
 def get_id_URI(s_id):
     if s_id in id_verbs:

@@ -5,18 +5,24 @@
 {% else %}
   <form action="" method="post" novalidate>
     {{ form.hidden_tag() }}
-    {% for subfield in form.radio %}
-    <tr>
-        <td>{{ subfield }}</td>
-        <td>{{ subfield.label }}</td>
-    </tr>
-    {% endfor %}
-    {{ form.submit() }}
+    <div>
+      {% for subfield in form.radio %}
+        {{ subfield }}
+        {{ subfield.label }}
+      {% endfor %}
+    </div>
+    <div>
+      {{ form.number_list.label()}} :
+      {{form.number_list()}}
+      {{ form.hash_list.label()}} :
+      {{form.hash_list()}}
+      {{ form.session_id.label()}} :
+      {{form.session_id()}}
+      {{ form.submit() }}
+    </div>
   </form>
   {% if data %}
-    {% for line in data %}
-      {{line|safe}}
-    {% endfor %}
+    {{data|safe}}
   {% endif %}
 
 {% endif %}

@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, SelectField, SubmitField, RadioField, BooleanField, TextAreaField
+from .visualize_list import visu_list
 
 class RetrieveForm(FlaskForm):
     number_list = StringField('Numéros étudiant')
@@ -23,9 +24,21 @@ class LogsForm(FlaskForm):
 
 
 class VisuForm(FlaskForm):
-    radio = RadioField('Visu', choices=[('stats', "Statistiques"), ('keywords', 'Mots clés'), ('execution', 'Nombre exécutions'), \
-        ('errors', 'Types d\'erreurs'), ('instructions', 'Types d\'instructions saisies')])
+    choices = []
+    for visu in visu_list:
+        choices.append((visu.name, visu.name))
+    radio = RadioField('Visu', choices=choices)
+    number_list = StringField('Numéros étudiant')
+    hash_list = StringField('Hashs étudiant')
+    session_id = StringField('IDs session')
     submit = SubmitField('Afficher')
+
+    def get_visu_fun(self,selected_visu):
+        for visu in visu_list:
+            if selected_visu == visu.name:
+                return (visu.return_type, visu.function)
+        raise ValueError("L'option sélectionnée n'existe pas dans la liste des visualisations visu_list")
+
 
 
 class DevForm(FlaskForm):

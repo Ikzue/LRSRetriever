@@ -2,7 +2,6 @@ from flask import (
     Blueprint, render_template, session
 )
 from flaskr.forms import LogsForm
-import sys, hashlib
 from . import getter
 
 
@@ -25,34 +24,6 @@ filter_editor = {('typed', 'keyword'), ('modified', 'instruction'), ('deleted', 
 
 bp = Blueprint('logs', __name__, url_prefix='')
 
-def get_hashes(number_list, hash_list):
-    hashes = []
-    # Convert and get all student numbers
-    number_list = number_list.split(';')
-    for number in number_list:
-        if number != '':
-            my_hash = hashlib.sha1(str.encode(number))
-            my_hash = my_hash.hexdigest()[:10]
-            hashes.append(my_hash)
-            
-
-    # Get all hashes
-    hash_list = hash_list.split(';')
-    for my_hash in hash_list:
-        if my_hash != '':
-            hashes.append(my_hash)
-
-    print(hashes)
-    return hashes
-
-def get_session_ids(session_ids):
-    ids = []
-    session_ids = session_ids.split(';')
-    for s in session_ids:
-        if s != '':
-            ids.append(s)
-    print(ids)
-    return ids
 
 def is_filtered(s, shown_data):
     verb, id = getter.get_verb(s), getter.get_activity_parsed_id(s)
@@ -67,25 +38,7 @@ def is_filtered(s, shown_data):
     elif not shown_data['editor'] and (verb, id) in filter_editor:
         return True
 
-    if shown_data['hashes']:
-        filter_statement = True
-        actor_name = getter.get_actor_name(s)
-        for student_hash in shown_data['hashes']:
-            if student_hash in actor_name:
-                filter_statement = False
-        if filter_statement:
-            return True
-
-    if shown_data['session-ids']:
-        filter_statement = True
-        statement_session_id = getter.get_session_id(s)
-        for session_id in shown_data['session-ids']:
-            if session_id in statement_session_id:
-                filter_statement = False
-        if filter_statement:
-            return True
-    return False
-    
+    return getter.filter_statement_hashes_id(s, shown_data['hashes'], shown_data['session-ids'])
     
 
 def get_chrono_logs(shown_data):
@@ -113,8 +66,6 @@ def get_session_logs(shown_data):
         if not is_filtered(s, shown_data):
             session_id = getter.get_session_id(s)
             timestamp = getter.get_timestamp(s)
-            #print(timestamp, file=sys.stdout)
-            #print(timestamp, file=sys.stdout)
             if session_id not in ord_statements.keys():
                 ord_statements[session_id] = {'timestamp': timestamp, 'statements': [s]}
             else:
@@ -137,10 +88,10 @@ def get_session_logs(shown_data):
 def register_logs():
     form = LogsForm()
     data = []
-    display_page = getter.check_statements_existence()
+    display_page = getter.statements_in_session()
     if display_page and form.validate_on_submit():
-        hashes = get_hashes(form.number_list.data, form.hash_list.data)
-        session_ids = get_session_ids(form.session_id.data)
+        hashes = getter.get_hashes(form.number_list.data, form.hash_list.data)
+        session_ids = getter.get_session_ids(form.session_id.data)
         shown_data = {'interaction': form.interaction.data, 'execution': form.execution.data, 'errors': form.errors.data, 
         'states': form.states.data, 'editor': form.editor.data, 'extensions': form.extensions.data, 'hashes':hashes, 'session-ids' : session_ids}
         if form.radio.data == 'chrono':

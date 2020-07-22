@@ -128,7 +128,8 @@ def show_statements(show_command, statements, next_tokens):
             except KeyError:
                 pass
         response_type = 'HTML_img'
-        data = diagrams.image_circular_diagram(piechart_data)
+        #TODO: Modifier 
+        data = diagrams.piechart_diagram(piechart_data)
     return (response_type, data)
 
 
