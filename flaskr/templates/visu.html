@@ -21,6 +21,24 @@
       {{ form.submit() }}
     </div>
   </form>
+  <hr>
+  {% if show_form2['show'] %}
+    <form action="" method="post" novalidate>
+      {{ form2.hidden_tag() }}
+      {% if show_form2['prev_page'] %}
+        {{form2.prev_page()}}
+      {% endif %}
+      {{form2.prev_number()}}
+      {{ form2.function_name()}} 
+      {{ form2.hashes()}}
+      {{ form2.session_ids()}}
+      {% if show_form2['next_page'] %}
+        {{ form2.next_page()}}
+      {% endif %}
+      {{form2.next_number()}}
+    </form>
+  {% endif %}
+
   {% if data %}
     {{data|safe}}
   {% endif %}

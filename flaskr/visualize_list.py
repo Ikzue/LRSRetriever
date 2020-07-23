@@ -138,13 +138,11 @@ visu_list.append(Visu('Mots-clés', 'image', get_keywords_visu))
 '''
 
 
-### 3 : HTML_Data: Number of executions
-def get_execution_visu(statements, filters):
+### 3 : multiple_page_HTML: Number of executions
+def get_execution_visu(statements, filters, current_page = 0):
     statements = getter.get_filtered_statements(statements, filters)
     data = ''
-    ord_statements = {}
-    filter_interactions = {('opened', 'application'), ('closed', 'application'), ('updated', 'student-number'), ('updated', 'partner-number'),
-    ('switched', 'mode'), ('created', 'file'), ('opened', 'file'), ('saved-as', 'file'), ('saved', 'file'), ('copied', 'output-console')}
+    ord_statements = {}    
     max_scale = 0
     
     for s in statements:
@@ -160,39 +158,23 @@ def get_execution_visu(statements, filters):
             ord_statements[session_id]['exec_times'].append(delta)
             if delta > max_scale:
                 max_scale = delta
-        elif verb == "modified" and id == "instruction":
+            """
+            elif verb == "modified" and id == "instruction":
             ord_statements[session_id]['instruc_times'].append(delta)
             if delta > max_scale:
-                max_scale = delta
+                max_scale = delta 
+            """
     
     ord_sessions = sorted(ord_statements.items(), key=lambda x: x[1]['timestamp'], reverse=True)
     sorted_sessions = []
     for s in ord_sessions:
         if s[1]['exec_times'] or s[1]['instruc_times']:
             sorted_sessions.append(s)
-            print("OK")
-        else:
-            print("KO")
     #print(sorted_sessions[0])
-    diagrams.execution_histogram(sorted_sessions, max_scale)
-    return "Mic_ OK"
-    '''
-    for s in sorted_sessions:
-        nb_exec = str(len(s[1]['exec_times']))
-        nb_inst = str(len(s[1]['instruc_times']))
-        if nb_exec == '0':
-            html_row = '<p style="color: red">'
-        else:
-            html_row = '<p>'
-        html_row += '<b> Session timestamp :' + datetime.strftime(s[1]['timestamp'], '%Y-%m-%dT%H:%M:%S')  + ' | Nombre d\'execution  : ' + \
-            nb_exec +  ' | Nombre modif. instructions  : ' + nb_inst  + ' | Session ID : ' + s[0] + '</b> </p>\n' 
-        data += html_row
-    
+    previous_page, next_page, HTML_text = diagrams.execution_histogram(sorted_sessions, max_scale, current_page)
+    return previous_page, next_page, HTML_text
 
-    return data
-    '''
-
-visu_list.append(Visu('Exécutions', 'HTML_data', get_execution_visu))
+visu_list.append(Visu('Exécutions', 'multiple_page_HTML', get_execution_visu))
 
 ### 4 : barchart : Return a dict of labels and values (eg:{'a': 2, 'b': 5, 'c';9}). The website will make a barchart from this data.
 def get_errors_visu(statements, filters):

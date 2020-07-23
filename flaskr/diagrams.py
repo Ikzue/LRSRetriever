@@ -33,27 +33,28 @@ def barchart_diagram(data):
     div = plot({'data': data}, output_type="div")
     return div
 
-def execution_histogram(sessions, max_scale):
-        nb_sessions = len(sessions)
-        cols = 3
-        rows = nb_sessions // cols
-        print(max_scale)
-
-        fig = subplots.make_subplots(rows = 1, cols = 3, shared_xaxes='all', shared_yaxes='all')
-        fig.layout.update(title = "Nombre d'executions et de modif d'instructions pour chaque session", barmode="stack")
-        for i in range(0, nb_sessions):
-                s = sessions[i]
-                row = 1 + (i // 3)
-                col = 1 + (i % 3)
+def execution_histogram(sessions, max_scale, page_number):
+        page_length = 6
+        begin = page_number * page_length
+        end = begin + page_length
+        previous_page = page_number - 1
+        next_page = page_number + 1
+        if previous_page < 0:
+                previous_page = 'None'
+        if end > len(sessions):
+                next_page = 'None'
+        HTML_text = "<h3>Nombre d'executions (bleu) et de modification d'instructions (rouge) par session </h3>"
+        for s in sessions[begin:end]:
                 session_id = s[0]
                 exec_times = s[1]['exec_times']
                 instruc_times = s[1]['instruc_times']
-
-                trace_exec =  go.Histogram(x=exec_times,xbins = dict(end = max_scale,size = 300), name="Nb. Exec", legendgroup="Exec")
-                trace_instruc =  go.Histogram(x=instruc_times,xbins = dict(end = max_scale, size = 300), name="Instruc")
-                fig.append_trace(trace_exec, row, col)
-                fig.append_trace(trace_instruc, row, col)
-                if i == 2:
-                        break
-        fig.show()
-                
+                title = s[1]['timestamp'].strftime('%Y-%m-%d %H:%M:%S') + ' Session:' + s[0]
+                trace_exec =  go.Histogram(x=exec_times,xbins = dict(start = 0, end = max_scale,size = 300), autobinx=False, 
+                name="Nombre d'exécutions")
+                trace_instruc =  go.Histogram(x=instruc_times,xbins = dict(start = 0,end = max_scale, size = 300), autobinx=False, 
+                name="Nombre d'instructions saisies")
+                data = [trace_exec, trace_instruc]
+                layout = {'title': title, 'barmode': 'stack', 'xaxis':{'range':[0,max_scale], 'title': 'Temps(en secondes)'}}
+                fig = go.Figure(data=data, layout=layout)
+                HTML_text += plot(fig, output_type="div")
+        return previous_page, next_page, HTML_text

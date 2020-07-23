@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, SelectField, SubmitField, RadioField, BooleanField, TextAreaField
+from wtforms import StringField, SelectField, SubmitField, RadioField, BooleanField, TextAreaField, HiddenField
 from .visualize_list import visu_list
 
 class RetrieveForm(FlaskForm):
@@ -39,6 +39,24 @@ class VisuForm(FlaskForm):
                 return (visu.return_type, visu.function)
         raise ValueError("L'option sélectionnée n'existe pas dans la liste des visualisations visu_list")
 
+class VisuPrevSuivForm(FlaskForm):
+    choices = []
+    for visu in visu_list:
+        choices.append((visu.name, visu.name))
+    prev_page = SubmitField('Prev page')
+    prev_number = HiddenField('Prev number')
+    function_name = HiddenField('Function name')
+    hashes = HiddenField('hashes')
+    session_ids = HiddenField('session ids')
+    next_page = SubmitField('Next page')
+    next_number = HiddenField('Next number')
+
+    def get_visu_fun(self,selected_visu):
+        for visu in visu_list:
+            if selected_visu == visu.name:
+                return visu.function
+        raise ValueError("L'option sélectionnée n'existe pas dans la liste des visualisations visu_list")
+    
 
 
 class DevForm(FlaskForm):
