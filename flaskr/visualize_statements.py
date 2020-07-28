@@ -20,8 +20,6 @@ def register_visu():
             hashes = getter.get_hashes(form.number_list.data, form.hash_list.data)
             session_ids = getter.get_session_ids(form.session_id.data)
             filters = {'hashes' : hashes, 'session-ids' : session_ids}
-            print(filters)
-            
             if return_type == 'string_list':
                 string_list = function(session['statements'], filters)
                 data += '<ul>'
@@ -47,6 +45,9 @@ def register_visu():
                 show_form2['show'] = True
                 show_form2['prev_page'] = (previous_page != 'None')
                 show_form2['next_page'] = (next_page != 'None')
+            elif return_type == 'timeline':
+                timeline_interval, timeline_data = function(session['statements'], filters)
+                data = diagrams.timeline_diagram(timeline_interval, timeline_data)
             else:
                 raise ValueError("Ce type de retour n'est pas défini: " + return_type)
         elif (form2.prev_page.data or form2.next_page.data) and form2.validate():

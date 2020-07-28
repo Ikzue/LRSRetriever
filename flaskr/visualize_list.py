@@ -5,7 +5,7 @@ from datetime import datetime, timedelta
 class Visu():
     def __init__(self, name, return_type, function):
         self.name = name
-        self.return_type = return_type # HTML_data, piechart
+        self.return_type = return_type # HTML_data, piechart, string_list, barchart, Image
         self.function = function
 
     def __repr__(self):
@@ -32,7 +32,8 @@ def my_visualisation_function(statements, filters):
 # Step 2 : Create a Visu object and Append your function to visu_list
 # visu_list.append(Visu('Name_on_website', 'Result_type', my_visualisation_function))
 
-# Now, you should be able to select your visualisation on the website. Below are all the results type available for your function:
+
+# After that, you should be able to select your visualisation on the website. Below are all the results type available for your function:
 '''
 string_list : a list of strings displayed as an HTML list
 HTML_data: a string containing HTML data
@@ -44,7 +45,7 @@ Image : an image filepath on the server or an image buffer (io.BytesIO())
 
 
 
-### 1 : HTML_data: a string of HTML code
+### Example 1 : HTML_data: a string of HTML code
 def get_stats_visu(statements, filters):
     statements = getter.get_filtered_statements(statements, filters)
     data = []
@@ -138,7 +139,47 @@ visu_list.append(Visu('Mots-clés', 'image', get_keywords_visu))
 '''
 
 
-### 3 : multiple_page_HTML: Number of executions
+
+### 3 : barchart : Return a dict of labels and values (eg:{'a': 2, 'b': 5, 'c';9}). The website will make a barchart from this data.
+def get_errors_visu(statements, filters):
+    statements = getter.get_filtered_statements(statements, filters)
+    errors= {}
+    errors_verb_id = { ('received', 'execution-error'), ('received', 'execution-warning'), \
+        ('received', 'evaluation-error'), ('received', 'evaluation-warning')}
+    
+    for s in statements:
+        verb, id = getter.get_verb(s), getter.get_activity_parsed_id(s)
+        if (verb, id) in errors_verb_id:
+            error = getter.get_error_first_group(s)
+            if error not in errors.keys():
+                errors[error] = 1
+            else:
+                errors[error] += 1
+    return errors
+
+visu_list.append(Visu('Erreurs', 'barchart', get_errors_visu))
+
+### 4 : piechart : Instruction types
+def get_instructions_visu(statements, filters):
+    statements = getter.get_filtered_statements(statements, filters)
+    instructions_type = {}
+    
+    for s in statements:
+        verb, id = getter.get_verb(s), getter.get_activity_parsed_id(s)
+        if (verb, id)  == ('modified', 'instruction'):
+            s_type = getter.get_instruction_type(s)
+            if s_type not in instructions_type.keys():
+                instructions_type[s_type] = 1
+            else:
+                instructions_type[s_type] += 1
+    return instructions_type
+
+visu_list.append(Visu('Instructions', 'piechart', get_instructions_visu))
+
+
+### Multiple HTML
+
+### 5 : multiple_page_HTML: Number of executions
 def get_execution_visu(statements, filters, current_page = 0):
     statements = getter.get_filtered_statements(statements, filters)
     data = ''
@@ -176,38 +217,58 @@ def get_execution_visu(statements, filters, current_page = 0):
 
 visu_list.append(Visu('Exécutions', 'multiple_page_HTML', get_execution_visu))
 
-### 4 : barchart : Return a dict of labels and values (eg:{'a': 2, 'b': 5, 'c';9}). The website will make a barchart from this data.
-def get_errors_visu(statements, filters):
+def get_state_visu(statements, filters, current_page = 0):
     statements = getter.get_filtered_statements(statements, filters)
-    errors= {}
-    errors_verb_id = { ('received', 'execution-error'), ('received', 'execution-warning'), \
-        ('received', 'evaluation-error'), ('received', 'evaluation-warning')}
+    data = ''
+    ord_statements = {}    
+    max_scale = 0
     
     for s in statements:
         verb, id = getter.get_verb(s), getter.get_activity_parsed_id(s)
-        if (verb, id) in errors_verb_id:
-            error = getter.get_error_first_group(s)
-            if error not in errors.keys():
-                errors[error] = 1
-            else:
-                errors[error] += 1
-    return errors
+        session_id = getter.get_session_id(s)
+        timestamp = datetime.strptime(getter.get_timestamp(s), '%Y-%m-%dT%H:%M:%S.%fZ')
+        if session_id not in ord_statements.keys():
+            ord_statements[session_id] = {'timestamp': timestamp, 'last_state_delta': 0, 'state_times': [('idle-state', timestamp)]}
+            current_session = ord_statements[session_id]
+        else:
+            current_session = ord_statements[session_id]
 
-visu_list.append(Visu('Erreurs', 'barchart', get_errors_visu))
-
-### 5 : piechart : Instruction types
-def get_instructions_visu(statements, filters):
-    statements = getter.get_filtered_statements(statements, filters)
-    instructions_type = {}
+        if verb == 'entered' and 'state' in id:
+            current_session['last_state_delta'] = 0
+            current_session['state_times'].append((id,timestamp))
+        else:
+            last_timestamp = ord_statements[session_id]['state_times'][-1][1]
+            delta_time = (timestamp - last_timestamp).total_seconds()
+            current_session['last_state_delta'] = delta_time
     
-    for s in statements:
-        verb, id = getter.get_verb(s), getter.get_activity_parsed_id(s)
-        if (verb, id)  == ('modified', 'instruction'):
-            s_type = getter.get_instruction_type(s)
-            if s_type not in instructions_type.keys():
-                instructions_type[s_type] = 1
-            else:
-                instructions_type[s_type] += 1
-    return instructions_type
+    ord_sessions = sorted(ord_statements.items(), key=lambda x: x[1]['timestamp'], reverse=True)
+    previous_page, next_page, HTML_text = diagrams.state_barchart(ord_sessions, current_page)
+    return previous_page, next_page, HTML_text
 
-visu_list.append(Visu('Instructions', 'piechart', get_instructions_visu))
+visu_list.append(Visu('Etat', 'multiple_page_HTML', get_state_visu))
+
+
+## Timeline: Takes a tuple (int, [(string, int)*]) -- (timeline_interval, [(category_name, y_value)]) and creates a timeline
+## Timeline template
+def timeline_function(statements, filters):
+    statements = getter.get_filtered_statements(statements, filters)
+
+    timeline_interval = 1
+    timeline_data = [('Catégorie A', 3), ('Catégorie B', 1), ('Catégorie B', 1), ('void', 0), ('Catégorie C', 4), ('Catégorie C', 2)]
+
+    return timeline_interval, timeline_data
+
+visu_list.append(Visu('Dummy timeline', 'timeline', timeline_function))
+
+
+''' Template
+def my_analysis_function(statements, filters):
+    statements = getter.get_filtered_statements(statements, filters)
+
+    # Do whatever you want here
+    # ...
+
+    return result
+
+visu_list.append(Visu('Name_on_website', 'Result_type', my_analysis_function))
+'''
