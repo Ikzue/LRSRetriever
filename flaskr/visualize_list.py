@@ -180,7 +180,7 @@ visu_list.append(Visu('Instructions', 'piechart', get_instructions_visu))
 ### Multiple HTML
 
 ### 5 : multiple_page_HTML: Number of executions
-def get_execution_visu(statements, filters, current_page = 0):
+def get_execution_visu(statements, filters):
     statements = getter.get_filtered_statements(statements, filters)
     data = ''
     ord_statements = {}    
@@ -191,7 +191,7 @@ def get_execution_visu(statements, filters, current_page = 0):
         session_id = getter.get_session_id(s)
         timestamp = datetime.strptime(getter.get_timestamp(s), '%Y-%m-%dT%H:%M:%S.%fZ')
         if session_id not in ord_statements.keys():
-            ord_statements[session_id] = {'timestamp': timestamp, 'exec_times': [], 'instruc_times' : []}
+            ord_statements[session_id] = {'timestamp': timestamp, 'exec_times': []}
 
         delta = timestamp - ord_statements[session_id]['timestamp']
         delta = delta.total_seconds()
@@ -209,15 +209,16 @@ def get_execution_visu(statements, filters, current_page = 0):
     ord_sessions = sorted(ord_statements.items(), key=lambda x: x[1]['timestamp'], reverse=True)
     sorted_sessions = []
     for s in ord_sessions:
-        if s[1]['exec_times'] or s[1]['instruc_times']:
-            sorted_sessions.append(s)
-    #print(sorted_sessions[0])
-    previous_page, next_page, HTML_text = diagrams.execution_histogram(sorted_sessions, max_scale, current_page)
-    return previous_page, next_page, HTML_text
+        if s[1]['exec_times']:
+            title = s[1]['timestamp'].strftime('%Y-%m-%d %H:%M:%S') + ' Session:' + s[0]
+            values = s[1]['exec_times']
+            sorted_sessions.append((title, values))
+    values = {'x_axis' : 'Temps en secondes', 'values' : sorted_sessions}
+    return values
 
-visu_list.append(Visu('Exécutions', 'multiple_page_HTML', get_execution_visu))
+visu_list.append(Visu('Exécutions', 'multiple_histogram', get_execution_visu))
 
-def get_state_visu(statements, filters, current_page = 0):
+def get_state_visu(statements, filters):
     statements = getter.get_filtered_statements(statements, filters)
     data = ''
     ord_statements = {}    
@@ -242,8 +243,10 @@ def get_state_visu(statements, filters, current_page = 0):
             current_session['last_state_delta'] = delta_time
     
     ord_sessions = sorted(ord_statements.items(), key=lambda x: x[1]['timestamp'], reverse=True)
-    previous_page, next_page, HTML_text = diagrams.state_barchart(ord_sessions, current_page)
-    return previous_page, next_page, HTML_text
+    HTML_divs = []
+    for s in ord_sessions:
+        HTML_divs.append(diagrams.state_barchart(s))
+    return HTML_divs
 
 visu_list.append(Visu('Etat', 'multiple_page_HTML', get_state_visu))
 

@@ -46,10 +46,11 @@ class VisuPrevSuivForm(FlaskForm):
     prev_page = SubmitField('Prev page')
     prev_number = HiddenField('Prev number')
     function_name = HiddenField('Function name')
-    hashes = HiddenField('hashes')
-    session_ids = HiddenField('session ids')
+    return_type = HiddenField('Return type')
+    histogram_interval = StringField('Taille intervalle de l\'histogramme:')
     next_page = SubmitField('Next page')
     next_number = HiddenField('Next number')
+    current_page_status = 'OK'
 
     def get_visu_fun(self,selected_visu):
         for visu in visu_list:

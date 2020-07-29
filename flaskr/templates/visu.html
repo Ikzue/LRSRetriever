@@ -22,17 +22,22 @@
     </div>
   </form>
   <hr>
-  {% if show_form2['show'] %}
+  {% if form2_status['show'] %}
     <form action="" method="post" novalidate>
       {{ form2.hidden_tag() }}
-      {% if show_form2['prev_page'] %}
+      {% if form2_status['prev_page'] %}
         {{form2.prev_page()}}
       {% endif %}
       {{form2.prev_number()}}
-      {{ form2.function_name()}} 
-      {{ form2.hashes()}}
-      {{ form2.session_ids()}}
-      {% if show_form2['next_page'] %}
+      {{form2_status['info']}} 
+      {% if form2_status['is_histogram'] %}
+      |||
+        {{form2.histogram_interval.label()}}
+        {{form2.histogram_interval()}}
+      {% endif %}
+      {{ form2.function_name()}}
+      {{ form2.return_type()}}
+      {% if form2_status['next_page'] %}
         {{ form2.next_page()}}
       {% endif %}
       {{form2.next_number()}}
