@@ -3,6 +3,7 @@ import os
 
 from flask import Flask
 from flask_session import Session
+from flask_bootstrap import Bootstrap
 
 def create_app(test_config=None):
     # create and configure the app
@@ -32,10 +33,12 @@ def create_app(test_config=None):
     def hello():
         return 'Hello, World!'
 
-    from . import retrieve_statements, logs_statements, visualize_statements, dev_statements
-    app.register_blueprint(retrieve_statements.bp)
-    app.register_blueprint(logs_statements.bp)
-    app.register_blueprint(visualize_statements.bp)
-    app.register_blueprint(dev_statements.bp)
+    from . import bp_retrieve, bp_logs, bp_visualize, bp_dev, bp_tutorial
+    app.register_blueprint(bp_retrieve.bp)
+    app.register_blueprint(bp_logs.bp)
+    app.register_blueprint(bp_visualize.bp)
+    app.register_blueprint(bp_dev.bp)
+    app.register_blueprint(bp_tutorial.bp)
+    bootstrap = Bootstrap(app)
 
     return app

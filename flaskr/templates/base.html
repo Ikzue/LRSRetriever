@@ -1,17 +1,24 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <script src="{{url_for('static',filename='plotly-latest.min.js') }}"></script>
-    </head>
-    <body>
-        <nav>
-            <a href="/index">Index</a>
-            <a href="/logs">Logs</a>
-            <a href="/visu">Visualisations</a>
-            <a href="/dev">Dev</a>
-            <!-- <a href="/analyses">Analyses</a> -->
-        </nav>
-        <hr>
-            {% block content %}{% endblock %}
-    </body>
-</html>
+{% extends 'bootstrap/base.html' %}
+{% block title %} Visualisation LRS {%endblock%}
+
+{% block navbar %}
+<nav>
+    <a href="/index">Index</a>
+    <a href="/logs">Logs</a>
+    <a href="/visu">Visualisations</a>
+    <a href="/dev">Dev</a>   -   
+    <a href="/tuto">Tutoriel</a>
+</nav>
+{% endblock %}
+{% block styles -%}
+    {{super()}}  
+    <link rel="stylesheet" type="text/css"
+          href="{{url_for('static', filename='base.css')}}">
+{% endblock %}
+
+{%block head%}
+{{super()}}
+<script src="{{url_for('static',filename='plotly-latest.min.js') }}"></script>
+{% endblock %}
+
+

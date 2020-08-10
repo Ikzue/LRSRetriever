@@ -10,14 +10,14 @@ class RetrieveForm(FlaskForm):
     submit = SubmitField('Envoi')
 
 class LogsForm(FlaskForm):
-    radio = RadioField('Logs', choices=[('chrono', "Chronologique"), ('session', 'Par session')])
+    radio = RadioField('Logs', choices=[('chrono', "Chronologique"), ('session', 'Par session')], default='chrono')
     submit = SubmitField('Afficher')
     interaction = BooleanField('Interactions logicielles', default='checked')
     execution = BooleanField('Execution programme/Evaluation interpréteur', default='checked')
     errors = BooleanField('Erreurs exec/eval', default='checked')
     states = BooleanField('Changement d\'états', default='checked')
     editor = BooleanField('Saisie editeur', default='checked')
-    extensions = BooleanField('Extensions', default='checked')
+    extensions = BooleanField('Extensions')
     number_list = StringField('Numéros étudiant')
     hash_list = StringField('Hashs étudiant')
     session_id = StringField('IDs session')
@@ -27,7 +27,7 @@ class VisuForm(FlaskForm):
     choices = []
     for visu in visu_list:
         choices.append((visu.name, visu.name))
-    radio = RadioField('Visu', choices=choices)
+    radio = RadioField('Visu', choices=choices, default=choices[0][0])
     number_list = StringField('Numéros étudiant')
     hash_list = StringField('Hashs étudiant')
     session_id = StringField('IDs session')

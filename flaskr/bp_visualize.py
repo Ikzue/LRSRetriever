@@ -7,7 +7,7 @@ import ast
 
 bp = Blueprint('visualise', __name__, url_prefix='')
 PAGE_LENGTH = 6
-HISTOGRAM_INTERVAL = 60
+HISTOGRAM_INTERVAL = 1
 
 def check_prev_next_pages(max_pages, current_page):
     previous_page = 'None'

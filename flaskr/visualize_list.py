@@ -266,9 +266,9 @@ visu_list.append(Visu('Dummy timeline', 'timeline', timeline_function))
 
 ''' Template
 def my_analysis_function(statements, filters):
-    statements = getter.get_filtered_statements(statements, filters)
-
-    # Do whatever you want here
+    statements = getter.get_filtered_statements(statements, filters) # Get all fetched statements in a list
+    
+    # Do your analysis here
     # ...
 
     return result

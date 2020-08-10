@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block content %}
+
+<div>
+    <h3>Utilisation du site</h3>
+    <h5>1ère étape : Récupérer les traces.</h5>
+    <p>Dans l’index du site, vous pouvez récupérez les traces souhaitées. 
+    Il est possible de filtrer les traces récupérées en fonction du numéro d’étudiant. 
+    Vous pouvez ajouter plusieurs numéros en utilisant « ; » comme caractère séparateur dans le filtre pour séparer les numéros.</p>
+    <h5>2ème étape :  Afficher les logs/visualisations</h5>
+    </p>Vous pouvez afficher les logs des traces souhaitées dans l’onglet « Logs » ou les visualisations proposées dans l’onglet « Visualisations ».
+    Ici aussi, vous pouvez filtrer les statements récupérées sur les numéros d’étudiants ou les IDs de sessions, en utilisant « ; » en tant que caractère séparateur.</p>
+
+    <p>Analyses simples : Statistiques, mots-clés saisis, type d’erreurs et type d’instructions saisies. </br>
+    On a deux analyses un peu plus poussées :
+    <ul>
+        <li> « Exécutions », donnant le nombre d’exécutions du programme de l’étudiant au cours du temps. </li>
+        <li> « Etat », donnant l’état d’activité de l’étudiant au cours du temps.</li>
+    </ul>
+    Vous pouvez voir le fichier « flaskr/visualize_list.py » pour voir comment ces analyses ont été réalisées.
+    </p>
+</div>
+
+<div>
+    <h3>Installation du serveur web</h3>
+    Installer le serveur sur votre machine permet d'intégrer vos propres analyses. (Voir partie "Ajout d'analyses de traces")
+    <h5><strong>Prérequis :</strong></h5>
+    Avoir Python 3 d’installé <br>
+    Avoir le dossier sur votre machine : git clone https://github.com/Ikzue/LRSRetriever.git<br>
+    <h5><strong>Initialisation de l’environnement virtuel permettant de lancer le serveur :</strong></h5>
+    Windows :
+    <ul>
+        <li>>py -3 -m venv venv</li>
+        <li>venv\Scripts\activate</li>
+        <li>pip install flask requests flask-wtf Flask-Session plotly matplotlib Pillow</li>
+    </ul>
+    Linux : 
+    <ul>
+        <li>python3 -m venv venv</li>
+        <li>. venv/bin/activate</li>
+        <li>pip install flask requests flask-wtf Flask-Session plotly matplotlib Pillow</li>
+    </ul>
+    <h5><strong>Démarrer le serveur dans l’environnement virtuel :</strong></h5>
+    Windows :
+    <ul>
+        <li>set FLASK_APP=flaskr</li>
+        <li>set FLASK_ENV=development</li>
+        <li>flask run</li>
+    </ul>
+    Linux :
+    <ul>
+        <li>export FLASK_APP=flaskr</li>
+        <li>export FLASK_ENV=development</li>
+        <li>flask run</li>
+    </ul>
+    Ensuite, allez sur http://localhost:5000/ dans votre navigateur pour avoir accès au serveur.
+</div>
+
+<div>
+    <h3> Ajout d'analyses de traces</h3>
+    <p>Tout d’abord, vous devez récupérer les traces présentes sur le serveur. Sur l’index du site, récupérez les traces avec les filtres souhaités. 
+    Vous pouvez ajouter vos propres analyses dans flaskr/visualize_list.py: un template vous est proposé en bas du fichier pour faciliter les analyses. 
+    Il vous suffit de suivre le template : Définir votre fonction d’analyses traitant les traces récupérées, puis, créer un objet Visu puis l’ajouter à visu_list. Votre analyse sera ensuite affichée comme une option sélectionnable dans l’onglet « Visualisations » du site.
+    Il vous est demandé un type de retour pour votre fonction d’analyse. Vous devez faire en sorte que votre fonction retourne une valeur de ce type, le site se chargera ensuite d’afficher votre analyse.
+    </p>
+    <p>Liste de types de retour :
+        <ul>
+            <li>string_list : Une liste de strings</li>
+            <li>HTML_data : Un string de données HTML</li>
+            <li>multiple_page_HTML : Une liste de strings de données HTML</li>
+            <li>piechart : Un dictionnaire de clés string et de valeurs int. Un diagramme circulaire est créé par le site.</li>
+            <li>barchart : Un dictionnaire de clés string et de valeurs int. Un diagramme en barres est créé par le site.</li>
+            <li>Timeline : Prend un tuple (int, [(string, int)*]) - (intervalle timeline, [(nom de catégorie, valeurs y)*]) et crée un timeline.</li>
+            <li>Exemple : [('Catégorie A', 3), ('Catégorie B', 1), ('Catégorie B', 1), ('void', 0), ('Catégorie C', 4), ('Catégorie C', 2)] -> </li> 
+            <li>Image : Un chemin de fichier d’image ou un buffer d’image</li>
+        </ul>
+    </p>
+</div>
+{% endblock %}
