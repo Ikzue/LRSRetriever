@@ -12,10 +12,17 @@ div {
     margin-bottom: 10px;
   }
 
-  table {
-    border-collapse: collapse;
-  }
-  tr { 
-    border: solid;
-    border-width: 1px 0;
-  }
+a {
+  margin-right: 5px;
+}
+
+
+table {
+  border-collapse: collapse;
+}
+
+tr { 
+  border: solid;
+  border-width: 1px 0;
+}
+

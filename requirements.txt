@@ -1,0 +1,8 @@
+flask
+requests
+flask-wtf
+Flask-Session
+plotly
+matplotlib
+Pillow
+flask-bootstrap

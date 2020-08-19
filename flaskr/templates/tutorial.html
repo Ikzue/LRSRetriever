@@ -11,7 +11,7 @@
     </p>Vous pouvez afficher les logs des traces souhaitées dans l’onglet « Logs » ou les visualisations proposées dans l’onglet « Visualisations ».
     Ici aussi, vous pouvez filtrer les statements récupérées sur les numéros d’étudiants ou les IDs de sessions, en utilisant « ; » en tant que caractère séparateur.</p>
 
-    <p>Analyses simples : Statistiques, mots-clés saisis, type d’erreurs et type d’instructions saisies. </br>
+    <p>Analyses simples : Statistiques, mots-clés saisis et type d’erreurs. </br>
     On a deux analyses un peu plus poussées :
     <ul>
         <li> « Exécutions », donnant le nombre d’exécutions du programme de l’étudiant au cours du temps. </li>
@@ -30,7 +30,7 @@
     <h5><strong>Initialisation de l’environnement virtuel permettant de lancer le serveur :</strong></h5>
     Windows :
     <ul>
-        <li>>py -3 -m venv venv</li>
+        <li>py -3 -m venv venv</li>
         <li>venv\Scripts\activate</li>
         <li>pip install flask requests flask-wtf Flask-Session plotly matplotlib Pillow</li>
     </ul>
@@ -74,6 +74,22 @@
             <li>Exemple : [('Catégorie A', 3), ('Catégorie B', 1), ('Catégorie B', 1), ('void', 0), ('Catégorie C', 4), ('Catégorie C', 2)] -> </li> 
             <li>Image : Un chemin de fichier d’image ou un buffer d’image</li>
         </ul>
+    </p>
+    <h3> Template</h3>
+    <textarea style="width: 100%; height:200px">
+def my_analysis_function(statements, filters):
+    statements = getter.get_filtered_statements(statements, filters) # Get all fetched statements in a list
+    
+    # Do your analysis here
+    # ...
+
+    return result
+
+visu_list.append(Visu('Name_on_website', 'Result_type', my_analysis_function))</textarea>
+
+    <p>
+    Après récupération de la liste des traces dans la variable 'statements', vous devez réaliser votre analyse et retourner un résultat qui sera ensuite affiché par le site.
+    Vous devez ensuite ajouter votre fonction à la liste de visualisations selon le format ci-dessus, en indiquant le nom de l'analyse, le type de retour et le nom de votre fonction d'analyse
     </p>
 </div>
 {% endblock %}

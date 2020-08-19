@@ -29,6 +29,7 @@
         {{form2.prev_page()}}
       {% endif %}
       {{form2.prev_number()}}
+      
       {{form2_status['info']}} 
       {% if form2_status['is_histogram'] %}
       |||
@@ -37,6 +38,11 @@
       {% endif %}
       {{ form2.function_name()}}
       {{ form2.return_type()}}
+
+      {% if form2_status['refresh_page'] %}
+      {{form2.refresh_page()}}
+      {% endif %}
+      {{form2.current_number()}}
       {% if form2_status['next_page'] %}
         {{ form2.next_page()}}
       {% endif %}

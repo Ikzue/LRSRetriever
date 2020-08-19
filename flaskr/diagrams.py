@@ -53,11 +53,10 @@ def timeline_diagram(size, data):
         fig.update_layout(title='Timeline', barmode='stack',  xaxis={'range':[0,size*len(data)]})
         return plot(fig, output_type="div", include_plotlyjs=False)
 
-def histogram_diagram(data, title, interval_size, label_name=''):
-
+def histogram_diagram(data, title, interval_size, x_label, x_size):
         histo =  go.Histogram(x=data,xbins = dict(start = 0, size = interval_size))
         data = [histo]
-        layout = {'title': title, 'barmode': 'stack', 'xaxis':{'rangemode':'tozero', 'title': label_name}}
+        layout = {'title': title, 'barmode': 'stack', 'xaxis':{'range':[0, x_size], 'title': x_label}}
         fig = go.Figure(data=data, layout=layout)
         return plot(fig, output_type="div", include_plotlyjs=False)
 

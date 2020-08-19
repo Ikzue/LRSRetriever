@@ -45,9 +45,11 @@ class VisuPrevSuivForm(FlaskForm):
         choices.append((visu.name, visu.name))
     prev_page = SubmitField('Prev page')
     prev_number = HiddenField('Prev number')
+    refresh_page = SubmitField('Refresh')
+    current_number = HiddenField('Prev number')
     function_name = HiddenField('Function name')
     return_type = HiddenField('Return type')
-    histogram_interval = StringField('Taille intervalle de l\'histogramme:')
+    histogram_interval = StringField('Taille de l\'intervalle:')
     next_page = SubmitField('Next page')
     next_number = HiddenField('Next number')
     current_page_status = 'OK'

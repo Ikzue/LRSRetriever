@@ -20,14 +20,14 @@ def check_prev_next_pages(max_pages, current_page):
         next_page = 'None'
     else:
         next_page = current_page + 1
-    return previous_page, next_page
+    return previous_page, current_page, next_page
 
 
 @bp.route('/visu', methods=('GET', 'POST'))
 def register_visu():
     form = VisuForm()
     form2 = VisuPrevSuivForm()
-    form2_status = {'show' : False, 'prev_page' : False, 'next_page' : False, 'info' : '', 'is_histogram' : False}
+    form2_status = {'show' : False, 'prev_page' : False, 'refresh_page' : False, 'next_page' : False, 'info' : '', 'is_histogram' : False}
     data = ''
     display_page = getter.statements_in_session()
     if display_page:
@@ -68,6 +68,7 @@ def register_visu():
                         data += div
                 elif return_type == 'multiple_histogram':
                     form2_status['is_histogram'] = True
+                    form2_status['refresh_page'] = True
                     values = function(session['statements'], filters)
                     session['data_' + form.radio.data] = values
                     x_axis_label = values['x_axis']
@@ -78,23 +79,26 @@ def register_visu():
                     for h in histogram_values[begin:end]:
                         title = h[0]
                         values = h[1]
-                        data += diagrams.histogram_diagram(values, title, HISTOGRAM_INTERVAL, x_axis_label)
+                        x_axis_size = h[2]
+                        data += diagrams.histogram_diagram(values, title, HISTOGRAM_INTERVAL, x_axis_label, x_axis_size)
                 
-                previous_page, next_page = check_prev_next_pages(max_pages, current_page)
+                previous_page, current_page, next_page = check_prev_next_pages(max_pages, current_page)
                 function_name = form.radio.data
-                form2 = VisuPrevSuivForm(function_name=function_name, prev_number=previous_page, next_number=next_page, return_type=return_type,
-                histogram_interval=HISTOGRAM_INTERVAL)
+                form2 = VisuPrevSuivForm(function_name=function_name, prev_number=previous_page, current_number=current_page,
+                 next_number=next_page, return_type=return_type, histogram_interval=HISTOGRAM_INTERVAL)
                 form2_status['show'] = True
                 form2_status['prev_page'] = (previous_page != 'None')
                 form2_status['next_page'] = (next_page != 'None')
                 form2_status['info'] = 'Page : ' + str(current_page) + '/' + str(max_pages)
             else:
                 raise ValueError("Ce type de retour n'est pas défini: " + return_type)
-        elif (form2.prev_page.data or form2.next_page.data) and form2.validate():
+        elif (form2.prev_page.data or form2.refresh_page.data or form2.next_page.data) and form2.validate():
             if form2.prev_page.data:
                 current_page = int(form2.prev_number.data)
             elif form2.next_page.data:
                 current_page = int(form2.next_number.data)
+            elif form2.refresh_page.data:
+                current_page = int(form2.current_number.data)
             return_type = form2.return_type.data
                 #print(float(form2.histogram_interval.data))
             if return_type == 'multiple_page_HTML':
@@ -110,6 +114,7 @@ def register_visu():
                 else:
                     histogram_size = HISTOGRAM_INTERVAL
                 form2_status['is_histogram'] = True
+                form2_status['refresh_page'] = True
                 values = session['data_' + form2.function_name.data]
                 x_axis_label = values['x_axis']
                 histogram_values = values['values']
@@ -119,13 +124,15 @@ def register_visu():
                 for h in histogram_values[begin:end]:
                     title = h[0]
                     values = h[1]
-                    data += diagrams.histogram_diagram(values, title, histogram_size, x_axis_label)
+                    x_axis_size = h[2]
+                    data += diagrams.histogram_diagram(values, title, histogram_size, x_axis_label, x_axis_size)
 
-            previous_page, next_page = check_prev_next_pages(max_pages, current_page)
+            previous_page, current_page, next_page = check_prev_next_pages(max_pages, current_page)
             form2_status['show'] = True
             form2_status['prev_page'] = (previous_page != 'None')
             form2_status['next_page'] = (next_page != 'None')
             form2_status['info'] = 'Page : ' + str(current_page) + '/' + str(max_pages)
             form2.prev_number.data = previous_page
+            form2.current_number.data = current_page
             form2.next_number.data =  next_page
     return render_template("visu.html", display_page=display_page, form=form, form2=form2, form2_status=form2_status, data=data)

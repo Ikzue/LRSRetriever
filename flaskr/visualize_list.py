@@ -140,7 +140,7 @@ visu_list.append(Visu('Mots-clés', 'image', get_keywords_visu))
 
 
 
-### 3 : barchart : Return a dict of labels and values (eg:{'a': 2, 'b': 5, 'c';9}). The website will make a barchart from this data.
+### 3: barchart : Return a dict of labels and values (eg:{'a': 2, 'b': 5, 'c';9}). The website will make a barchart from this data.
 def get_errors_visu(statements, filters):
     statements = getter.get_filtered_statements(statements, filters)
     errors= {}
@@ -159,70 +159,50 @@ def get_errors_visu(statements, filters):
 
 visu_list.append(Visu('Erreurs', 'barchart', get_errors_visu))
 
-### 4 : piechart : Instruction types
-def get_instructions_visu(statements, filters):
-    statements = getter.get_filtered_statements(statements, filters)
-    instructions_type = {}
-    
-    for s in statements:
-        verb, id = getter.get_verb(s), getter.get_activity_parsed_id(s)
-        if (verb, id)  == ('modified', 'instruction'):
-            s_type = getter.get_instruction_type(s)
-            if s_type not in instructions_type.keys():
-                instructions_type[s_type] = 1
-            else:
-                instructions_type[s_type] += 1
-    return instructions_type
-
-visu_list.append(Visu('Instructions', 'piechart', get_instructions_visu))
 
 
 ### Multiple HTML
 
-### 5 : multiple_page_HTML: Number of executions
+### 4: : multiple_histogram: Number of executions
 def get_execution_visu(statements, filters):
     statements = getter.get_filtered_statements(statements, filters)
     data = ''
     ord_statements = {}    
-    max_scale = 0
     
     for s in statements:
         verb, id = getter.get_verb(s), getter.get_activity_parsed_id(s)
         session_id = getter.get_session_id(s)
         timestamp = datetime.strptime(getter.get_timestamp(s), '%Y-%m-%dT%H:%M:%S.%fZ')
         if session_id not in ord_statements.keys():
-            ord_statements[session_id] = {'timestamp': timestamp, 'exec_times': []}
+            ord_statements[session_id] = {'timestamp': timestamp, 'exec_times': [], 'session_length' : 0}
+        current_session = ord_statements[session_id]
 
-        delta = timestamp - ord_statements[session_id]['timestamp']
+        delta = timestamp - current_session['timestamp']
         delta = delta.total_seconds()
         if verb == "started" and id == "execution":
-            ord_statements[session_id]['exec_times'].append(delta)
-            if delta > max_scale:
-                max_scale = delta
-            """
-            elif verb == "modified" and id == "instruction":
-            ord_statements[session_id]['instruc_times'].append(delta)
-            if delta > max_scale:
-                max_scale = delta 
-            """
+            current_session['exec_times'].append(delta)
+        if delta > ord_statements[session_id]['session_length']:
+            current_session['session_length'] = delta
     
     ord_sessions = sorted(ord_statements.items(), key=lambda x: x[1]['timestamp'], reverse=True)
     sorted_sessions = []
     for s in ord_sessions:
         if s[1]['exec_times']:
-            title = s[1]['timestamp'].strftime('%Y-%m-%d %H:%M:%S') + ' Session:' + s[0]
+            title = s[1]['timestamp'].strftime('%Y-%m-%d %H:%M:%S') + ' Session : ' + s[0] + ' Length : ' + str(s[1]['session_length']) + 's'
             values = s[1]['exec_times']
-            sorted_sessions.append((title, values))
+            x_axis_size = s[1]['session_length']
+            sorted_sessions.append((title, values, x_axis_size))
+    
     values = {'x_axis' : 'Temps en secondes', 'values' : sorted_sessions}
     return values
 
 visu_list.append(Visu('Exécutions', 'multiple_histogram', get_execution_visu))
 
+# 5 : multiple_page_HTML: State of the student
 def get_state_visu(statements, filters):
     statements = getter.get_filtered_statements(statements, filters)
     data = ''
     ord_statements = {}    
-    max_scale = 0
     
     for s in statements:
         verb, id = getter.get_verb(s), getter.get_activity_parsed_id(s)
@@ -230,9 +210,7 @@ def get_state_visu(statements, filters):
         timestamp = datetime.strptime(getter.get_timestamp(s), '%Y-%m-%dT%H:%M:%S.%fZ')
         if session_id not in ord_statements.keys():
             ord_statements[session_id] = {'timestamp': timestamp, 'last_state_delta': 0, 'state_times': [('idle-state', timestamp)]}
-            current_session = ord_statements[session_id]
-        else:
-            current_session = ord_statements[session_id]
+        current_session = ord_statements[session_id]
 
         if verb == 'entered' and 'state' in id:
             current_session['last_state_delta'] = 0
@@ -251,7 +229,7 @@ def get_state_visu(statements, filters):
 visu_list.append(Visu('Etat', 'multiple_page_HTML', get_state_visu))
 
 
-## Timeline: Takes a tuple (int, [(string, int)*]) -- (timeline_interval, [(category_name, y_value)]) and creates a timeline
+## 6 : Dummy Timeline: Takes a tuple (int, [(string, int)*]) -- (timeline_interval, [(category_name, y_value)]) and creates a timeline
 ## Timeline template
 def timeline_function(statements, filters):
     statements = getter.get_filtered_statements(statements, filters)
