@@ -1,3 +1,5 @@
+# The 'Console dev (legacy)' webpage. A page to show statements thanks to command lines.
+# Unfortunately this webpage has been abandonned
 from flask import (
     Blueprint, render_template, session, send_file
 )
@@ -134,15 +136,15 @@ def show_statements(show_command, statements, next_tokens):
 
 
 def process_text(dev_text):
-    lines = dev_text.split('\r\n')
+    # Process the commands typed by the user
+    lines = dev_text.split('\r\n') # Get all commands
     command_list = create_command_list(lines)
     statements = session['statements']
-    #print(len(statements), file=sys.stdout)
     for c in command_list:
         not_command = False
         for i in range(len(c)):
             token = c[i]
-            if token.token_type == 'not-command':
+            if token.token_type == 'not-command': # Check which command is called by the user
                 not_command = not not_command
             elif token.token_type == 'filter-command':
                 statements = filter_statements(token.token_value, statements, c[i+1:], not_command)
@@ -152,18 +154,11 @@ def process_text(dev_text):
                 return show_statements(token.token_value, statements, c[i+1:])
             else:
                 raise ValueError('This should be a command ' + str(token))
-
-            #print(token.token_type, file=sys.stdout)
-        '''
-        for s in statements:
-            if not is_filtered(s,c):
-                filtered_statements.append(s)
-            #print(s, file=sys.stdout)
-        '''
     return ('HTML_data', [])
 
 @bp.route('/dev', methods=('GET', 'POST'))
 def register_dev():
+    #Show the 'Console dev(legacy)' webpage
     form = DevForm()
     data = []
     display_page = True

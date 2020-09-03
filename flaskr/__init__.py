@@ -1,4 +1,4 @@
-#Modules required: requests
+# Check requirements.txt for the required libraries
 import os
 
 from flask import Flask
@@ -27,11 +27,6 @@ def create_app(test_config=None):
         os.makedirs(app.instance_path)
     except OSError:
         pass
-
-    # a simple page that says hello
-    @app.route('/hello')
-    def hello():
-        return 'Hello, World!'
 
     from . import bp_retrieve, bp_logs, bp_visualize, bp_dev, bp_tutorial
     app.register_blueprint(bp_retrieve.bp)

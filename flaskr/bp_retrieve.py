@@ -1,3 +1,5 @@
+# The "Retrieve statements" webpage used to get the statements from the LRS.
+
 from flask import (
     Blueprint, flash, g, redirect, render_template, request, session, url_for, session
 )
@@ -8,6 +10,7 @@ import hashlib
 bp = Blueprint('retrieve', __name__, url_prefix='')
 
 def get_date(form_date):
+    # Get the minimum date of the retrieved statements
     if form_date == 'today':
         date = datetime.datetime.today().utcnow()
     elif form_date == 'week':
@@ -21,6 +24,7 @@ def get_date(form_date):
 
     
 def get_statements(form_number_list, form_hash_list, selected_date):
+    # Get the statements from the LRS with the form info
     url = 'https://lrsmocah.lip6.fr/api/statements/aggregate'
     auth = 'Basic Yzc1NjdmNTZhNGRjOTk2MWU5OTY2NzE5ZDZmZDQ4YzhjZDc4MGY0MzpjYTY4MDQ5ODhmZGU0N2QyZThjYzQyMmUxNzQ3ZmJkMjg0NGEwNjY0'
     headers = {'Authorization': auth}
@@ -46,7 +50,6 @@ def get_statements(form_number_list, form_hash_list, selected_date):
         all_hashes = all_hashes[:-1]
 
     #Get statements from hash numbers
-    #pipeline_params = [{'$limit': 1}, {'$project': { 'statement': 1, '_id': 0 }}]
     pipeline_params = [{'$project': { 'statement': 1, '_id': 0 , 'timestamp': 1}}]
 
 
@@ -54,7 +57,7 @@ def get_statements(form_number_list, form_hash_list, selected_date):
         'statement.actor.name': {'$regex':all_hashes},
     }}
     
-
+    # A first request to get all session IDs
     if date:
         match['$match']['statement.timestamp'] = {'$gte':{'$dte':date}}
     pipeline_params.append(match)
@@ -62,7 +65,7 @@ def get_statements(form_number_list, form_hash_list, selected_date):
     r = requests.get(url, params=params,headers=headers, verify=False)
     statements = json.loads(r.text)
 
-    #Get statements from sessions ID
+    # A second request to get all the statements with the session IDs. Used in case a student identifies themselves late.
     sessions = set()
     for s in statements:
         bugged_statements = ['2020-07-08T09:08:18.077Z', '2020-07-08T09:36:51.475Z'] # Small hack to remove old bugged statement...
@@ -90,6 +93,7 @@ def get_statements(form_number_list, form_hash_list, selected_date):
 @bp.route('/', methods=('GET', 'POST'))
 @bp.route('/index', methods=('GET', 'POST'))
 def register():
+    # Show the page with the form
     form=RetrieveForm()
     statements = {}
     nb_statements = None
@@ -102,9 +106,3 @@ def register():
         
     return render_template('index.html', statements=statements, nb_statements=nb_statements,form=form)
 
-'''
-        print(request.form, file=sys.stdout)
-        student_hash = request.form['student-hash']
-        verb_name = request.form['verb-name']
-        activity_name = request.form['activity-name']
-'''

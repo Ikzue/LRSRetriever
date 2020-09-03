@@ -1,3 +1,4 @@
+# The "Visualisations" webpage used to show visualisations from the retrieved statements.
 from flask import (
     Blueprint, render_template, session, send_file, request
 )
@@ -10,6 +11,7 @@ PAGE_LENGTH = 6
 HISTOGRAM_INTERVAL = 1
 
 def check_prev_next_pages(max_pages, current_page):
+    # If there are multiple pages of visualisations, return the previous and next page
     previous_page = 'None'
     next_page = 'None'
     if current_page == 1:
@@ -25,13 +27,18 @@ def check_prev_next_pages(max_pages, current_page):
 
 @bp.route('/visu', methods=('GET', 'POST'))
 def register_visu():
+    # Primary form, used to select a visualisation
     form = VisuForm()
+    # Secondary form, to turn pages whenever there are multiple visualisations. 
+    # (Whenever return type of the analysis is 'multiple_page_HTML' or 'multiple_histogram')
     form2 = VisuPrevSuivForm()
+    # Used to show what we want. Differs according to the number of pages, the currentpage, and whether the analysis is'multiple_page_HTML' or
+    # 'multiple_histogram'. (Histograms enables user to change the histogram's interval value, so 'refresh_page' and 'is_histogram' are true)
     form2_status = {'show' : False, 'prev_page' : False, 'refresh_page' : False, 'next_page' : False, 'info' : '', 'is_histogram' : False}
     data = ''
     display_page = getter.statements_in_session()
-    if display_page:
-        if form.submit.data and form.validate():
+    if display_page: # If there are retrieved statements, we show the webpage
+        if form.submit.data and form.validate(): # User selected a visualisation
             return_type, function = form.get_visu_fun(form.radio.data)
             hashes = getter.get_hashes(form.number_list.data, form.hash_list.data)
             session_ids = getter.get_session_ids(form.session_id.data)
@@ -92,7 +99,7 @@ def register_visu():
                 form2_status['info'] = 'Page : ' + str(current_page) + '/' + str(max_pages)
             else:
                 raise ValueError("Ce type de retour n'est pas défini: " + return_type)
-        elif (form2.prev_page.data or form2.refresh_page.data or form2.next_page.data) and form2.validate():
+        elif (form2.prev_page.data or form2.refresh_page.data or form2.next_page.data) and form2.validate(): # User turned pages
             if form2.prev_page.data:
                 current_page = int(form2.prev_number.data)
             elif form2.next_page.data:
@@ -100,7 +107,6 @@ def register_visu():
             elif form2.refresh_page.data:
                 current_page = int(form2.current_number.data)
             return_type = form2.return_type.data
-                #print(float(form2.histogram_interval.data))
             if return_type == 'multiple_page_HTML':
                 HTML_divs = session['data_' + form2.function_name.data]
                 max_pages = (len(HTML_divs) + (PAGE_LENGTH - 1))  // PAGE_LENGTH

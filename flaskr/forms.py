@@ -3,6 +3,7 @@ from wtforms import StringField, SelectField, SubmitField, RadioField, BooleanFi
 from .visualize_list import visu_list
 
 class RetrieveForm(FlaskForm):
+    # A form used to retrieve statements
     number_list = StringField('Numéros étudiant')
     hash_list = StringField('Hashs étudiant')
     date = SelectField('Date', choices=[('today', "Aujourd'hui"), ('week', 'Cette semaine'), ('month', 'Ce mois'),
@@ -10,6 +11,7 @@ class RetrieveForm(FlaskForm):
     submit = SubmitField('Envoi')
 
 class LogsForm(FlaskForm):
+    # A form used to show logs from retrieved statements
     radio = RadioField('Logs', choices=[('chrono', "Chronologique"), ('session', 'Par session')], default='chrono')
     submit = SubmitField('Afficher')
     interaction = BooleanField('Interactions logicielles', default='checked')
@@ -24,6 +26,7 @@ class LogsForm(FlaskForm):
 
 
 class VisuForm(FlaskForm):
+    # A form used to show visualisations from retrieved statements
     choices = []
     for visu in visu_list:
         choices.append((visu.name, visu.name))
@@ -40,6 +43,7 @@ class VisuForm(FlaskForm):
         raise ValueError("L'option sélectionnée n'existe pas dans la liste des visualisations visu_list")
 
 class VisuPrevSuivForm(FlaskForm):
+    # A form used in the "Visualisations" webpage to manage multiple pages of visualisations.
     choices = []
     for visu in visu_list:
         choices.append((visu.name, visu.name))
@@ -63,5 +67,6 @@ class VisuPrevSuivForm(FlaskForm):
 
 
 class DevForm(FlaskForm):
+    # A form used to manage the user's commands in the 'Console dev (legacy)' webpage.
     dev_text = TextAreaField('Saisie dev')
     submit = SubmitField('Traiter')

@@ -1,3 +1,7 @@
+# A module to add your own analysis/visualisations thanks to a template. 
+# Define your analysis/visualisation function and add it to visu_list with the type of the returned value of your function.
+# Simple return types : HTML_data, piechart, string_list, barchart, Image
+# Complex return types : multiple_page_HTML, multiple_histogram
 from flask import session
 from . import getter, diagrams
 from datetime import datetime, timedelta
@@ -196,7 +200,7 @@ def get_execution_visu(statements, filters):
     values = {'x_axis' : 'Temps en secondes', 'values' : sorted_sessions}
     return values
 
-visu_list.append(Visu('Exécutions', 'multiple_histogram', get_execution_visu))
+visu_list.append(Visu('Exécutions(Sessions)', 'multiple_histogram', get_execution_visu))
 
 # 5 : multiple_page_HTML: State of the student
 def get_state_visu(statements, filters):
@@ -226,7 +230,7 @@ def get_state_visu(statements, filters):
         HTML_divs.append(diagrams.state_barchart(s))
     return HTML_divs
 
-visu_list.append(Visu('Etat', 'multiple_page_HTML', get_state_visu))
+visu_list.append(Visu('Etat(Sessions)', 'multiple_page_HTML', get_state_visu))
 
 
 ## 6 : Dummy Timeline: Takes a tuple (int, [(string, int)*]) -- (timeline_interval, [(category_name, y_value)]) and creates a timeline

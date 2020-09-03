@@ -1,3 +1,4 @@
+# The "Tutoriel" webpage. Show how to use the website
 from flask import Blueprint, render_template
 
 bp = Blueprint('tutorial', __name__, url_prefix='')

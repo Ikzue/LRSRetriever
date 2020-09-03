@@ -1,15 +1,18 @@
+# The "Logs" webpage used to get logs from the retrieved statements.
 from flask import (
     Blueprint, render_template, session
 )
 from flaskr.forms import LogsForm
 from . import getter
+from datetime import datetime, timedelta
 
-
+# Separate the xAPI statements in different categories in order to show only the desired categories
 filter_interaction = {('opened', 'application'), ('closed', 'application'), ('initialized', 'student-number'), ('initialized', 'partner-number'), 
 ('updated', 'student-number'), ('updated', 'partner-number'), ('switched', 'mode'), ('switched', 'file'), ('created', 'file'), 
 ('opened', 'file'), ('closed', 'file'), ('saved-as', 'file'), ('saved', 'file'), ('copied', 'output-console')}
 
-# Interpretation ID doesn't exist anymore, and is now called 'evaluation'
+# Interpretation ID doesn't exist anymore, and is now called 'evaluation'. 
+# Use cases with 'interpretation' should be removed whenever the old statements are removed from the LRS's database.
 filter_execution = {('started', 'execution'), ('passed', 'execution'), ('failed', 'execution'), ('terminated', 'execution'),
 ('started', 'evaluation'), ('passed', 'evaluation'), ('failed', 'evaluation'), ('terminated', 'evaluation'),
 ('started', 'interpretation'), ('passed', 'interpretation'), ('failed', 'interpretation')} 
@@ -26,6 +29,7 @@ bp = Blueprint('logs', __name__, url_prefix='')
 
 
 def is_filtered(s, shown_data):
+    # Filter a statement if the statement's category hasn't been selected
     verb, id = getter.get_verb(s), getter.get_activity_parsed_id(s)
     if not shown_data['interaction'] and (verb, id) in filter_interaction:
         return True
@@ -42,6 +46,7 @@ def is_filtered(s, shown_data):
     
 
 def get_chrono_logs(shown_data):
+    # Show logs in a reverse chronological order
     show_extensions = shown_data['extensions']
     data = []
     data.append('<table>')
@@ -58,22 +63,31 @@ def get_chrono_logs(shown_data):
     return data
 
 def get_session_logs(shown_data):
+    # Show logs in separate sessions, in a reverse chronological order according to the sessions' beginning times
     show_extensions = shown_data['extensions']
     data = []
     ord_statements = {}
     
+    # Separate the statements in different sessions in the dictionnary ord_statements. 
     for s in session['statements']:
         if not is_filtered(s, shown_data):
             session_id = getter.get_session_id(s)
             timestamp = getter.get_timestamp(s)
             if session_id not in ord_statements.keys():
-                ord_statements[session_id] = {'timestamp': timestamp, 'statements': [s]}
+                ord_statements[session_id] = {'timestamp': timestamp, 'statements': [s], 'session_length' : 0}
             else:
                 ord_statements[session_id]['statements'].append(s)
-    
+                first_timestamp = datetime.strptime(ord_statements[session_id]['timestamp'], '%Y-%m-%dT%H:%M:%S.%fZ')
+                new_timestamp = datetime.strptime(getter.get_timestamp(s), '%Y-%m-%dT%H:%M:%S.%fZ')
+                delta = new_timestamp - first_timestamp
+                delta = delta.total_seconds()
+                if delta > ord_statements[session_id]['session_length']:
+                    ord_statements[session_id]['session_length'] = delta
+    # Sort in reverse chronolgical order
     sorted_statements = sorted(ord_statements.items(), key=lambda x: x[1]['timestamp'], reverse=True)
     for s in sorted_statements:
-        data.append('<p><b> Session timestamp :' + s[1]['timestamp'][0:19] + ' Session ID:' + s[0] + '</b><br>')
+        data.append('<p><b> Session timestamp : ' + s[1]['timestamp'][0:19] + " Length : " +  str(s[1]['session_length']) +
+         's Session ID:' + s[0] + '</b><br>')
         s[1]['statements'].reverse()
         for s2 in s[1]['statements']:
             data.append(getter.statement_info(s2, show_extensions))
@@ -86,6 +100,7 @@ def get_session_logs(shown_data):
 
 @bp.route('/logs', methods=('GET', 'POST'))
 def register_logs():
+    #Show the webpage and the logs form
     form = LogsForm()
     data = []
     display_page = getter.statements_in_session()

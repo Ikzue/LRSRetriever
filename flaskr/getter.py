@@ -1,3 +1,4 @@
+# Getters for the xAPI statements
 from flask import session
 import hashlib
 
@@ -33,6 +34,7 @@ def is_keyword_statement(statement):
     return get_verb(statement) == 'typed' and get_activity(statement) == "a keyword"
 
 def statement_HTML_table_row(s, show_extensions=False):
+    #Get a statement as string of a HTML table row
     info = '<tr>'
     info += '<td>' + s['statement']['actor']['name'] + '</td>'
     info += '<td>' + s['statement']['verb']['display']['en-US'] + '</td>'
@@ -51,6 +53,7 @@ def statement_HTML_table_row(s, show_extensions=False):
     return info
 
 def statement_info(s, show_extensions):
+    # Get the statement's 'name, verb, object' xAPI triplet. if show_extensions are true, show the xAPI object's extensions
     info = s['statement']['actor']['name']
     info += ' ' + s['statement']['verb']['display']['en-US']
     info += ' ' + s['statement']['object']['definition']['name']['en-US']
@@ -68,6 +71,7 @@ def statement_info(s, show_extensions):
     return info
 
 def filter_statement_hashes_id(statement, list_hashes, list_ids):
+    #Filter the statement according to the list of student hashes and the list of session ID. Return True if the statement is filtered 
     filter_statement = False
     
     if len(list_hashes) > 0:
@@ -93,6 +97,7 @@ def filter_statement_hashes_id(statement, list_hashes, list_ids):
     
 
 def get_filtered_statements(statements, filters = None):
+    # Filter all statements according the 'student hashes' filter or the 'session ids' filter
     if filters is None or (len(filters['hashes']) == 0 and len(filters['session-ids']) == 0):
         return statements.copy()
 
@@ -106,11 +111,16 @@ def get_filtered_statements(statements, filters = None):
         
 
 def statements_in_session():
+    # Check if the user retrieved statements. 
+    # If there are no retrieved statements, we should show an error  telling to user to retrieve some statements. 
     if 'statements' not in session.keys() or len(session['statements']) == 0:
         return False
     return True
 
 def get_hashes(number_list, hash_list):
+    # Turn a string of student hashes and a student numbers with the ';' separator, into a list of student hashes
+    
+    # Convert numbers to hashes with the same hashing function as used in MrPython.  
     hashes = []
     # Convert and get all student numbers
     number_list = number_list.split(';')
@@ -129,6 +139,7 @@ def get_hashes(number_list, hash_list):
     return hashes
 
 def get_session_ids(session_ids):
+    # Turn a string of sessions with the ';' separator into a list
     ids = []
     session_ids = session_ids.split(';')
     for s in session_ids:
